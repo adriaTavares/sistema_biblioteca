@@ -2,7 +2,8 @@ CREATE EXTENSION btree_gist;
 
 CREATE TYPE status_emprestimo_enum AS ENUM (
     'ativo',
-    'finalizado'
+    'finalizado',
+    'cancelado'
 );
 
 
@@ -14,16 +15,19 @@ CREATE TABLE emprestimos (
     funcionario_criacao_id integer NOT NULL,
     data_criacao timestamptz NOT NULL DEFAULT now(),
 
-    funcionario_fim_id integer,
-    data_fim timestamptz,
-    
+    funcionario_finalizacao_id integer,
+    data_finalizacao timestamptz,
+
+    funcionario_cancelamento_id integer,
+    data_cancelamento timestamptz,
+
     data_prevista_devolucao date NOT NULL,
     quantidade_renovacoes integer NOT NULL DEFAULT 0,
     status status_emprestimo_enum NOT NULL DEFAULT 'ativo',
     periodo tstzrange GENERATED ALWAYS AS (
         tstzrange(
             data_criacao,
-            data_fim,
+            data_finalizacao,
             '[)'
         )
     ) STORED,
@@ -46,8 +50,8 @@ CREATE TABLE emprestimos (
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
 
-    CONSTRAINT emprestimos_funcionario_fim_id_fk
-        FOREIGN KEY (funcionario_fim_id)
+    CONSTRAINT emprestimos_funcionario_finalizacao_id_fk
+        FOREIGN KEY (funcionario_finalizacao_id)
         REFERENCES funcionarios (id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
@@ -60,24 +64,38 @@ CREATE TABLE emprestimos (
             data_prevista_devolucao >= data_criacao::date
         ),
 
-    CONSTRAINT emprestimos_data_fim_check
+    CONSTRAINT emprestimos_data_finalizacao_check
         CHECK (
-            data_fim IS NULL
-            OR data_fim >= data_criacao
+            data_finalizacao IS NULL
+            OR data_finalizacao >= data_criacao
         ),
 
-    CONSTRAINT emprestimos_status_data_fim_check
+    CONSTRAINT emprestimos_status_data_finalizacao_check
         CHECK (
             (
                 status = 'ativo'
-                AND data_fim IS NULL
-                AND funcionario_fim_id IS NULL
+                AND data_finalizacao IS NULL
+                AND funcionario_finalizacao_id IS NULL
             )
             OR
             (
                 status = 'finalizado'
-                AND data_fim IS NOT NULL
-                AND funcionario_fim_id IS NOT NULL
+                AND data_finalizacao IS NOT NULL
+                AND funcionario_finalizacao_id IS NOT NULL
+            )
+        ),
+    CONSTRAINT emprestimos_status_cancelamento_check
+        CHECK (
+            (
+                status = 'ativo'
+                AND data_cancelamento IS NULL
+                AND funcionario_cancelamento_id IS NULL
+            )
+            OR
+            (
+                status = 'cancelado'
+                AND data_cancelamento IS NOT NULL
+                AND funcionario_cancelamento_id IS NOT NULL
             )
         ),
 

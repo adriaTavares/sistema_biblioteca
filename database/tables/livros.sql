@@ -93,6 +93,8 @@ CREATE TABLE livros_autores (
 );
 
 
+
+
 CREATE TYPE status_exemplar_enum AS ENUM (
     'disponivel',
     'processando',
