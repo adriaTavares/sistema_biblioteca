@@ -1,0 +1,94 @@
+CREATE TABLE categorias (
+    id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome varchar(100) NOT NULL,
+
+    CONSTRAINT categorias_nome_unique
+        UNIQUE (nome),
+
+    CONSTRAINT categorias_nome_check
+        CHECK (btrim(nome) <> ''),
+);
+
+
+
+CREATE TABLE autores (
+    id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome varchar(100) NOT NULL,
+
+    CONSTRAINT autores_nome_unique
+        UNIQUE (nome),
+
+    CONSTRAINT autores_nome_check
+        CHECK (btrim(nome) <> '')
+);
+
+
+
+CREATE TABLE livros (
+    id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo varchar(200) NOT NULL,
+    isbn varchar(20) NOT NULL,
+    ano_publicacao integer NOT NULL,
+    ativo boolean NOT NULL DEFAULT true,
+
+    CONSTRAINT livros_isbn_unique
+        UNIQUE (isbn),
+
+    CONSTRAINT livros_titulo_check
+        CHECK (btrim(titulo) <> ''),
+
+    CONSTRAINT livros_isbn_check
+        CHECK (btrim(isbn) <> ''),
+
+    CONSTRAINT livros_ano_publicacao_check
+        CHECK (ano_publicacao >= 1450 AND ano_publicacao <= current_date)
+);
+
+
+
+CREATE TABLE livros_categorias (
+    livro_id integer NOT NULL,
+    categoria_id integer NOT NULL,
+
+    CONSTRAINT livros_categorias_livros_id_fk
+        FOREIGN KEY (livro_id)
+        REFERENCES livros (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT livros_categorias_categorias_id_fk
+        FOREIGN KEY (categoria_id)
+        REFERENCES categorias (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT livros_categorias_unique
+        UNIQUE (livro_id, categoria_id),
+
+    CONSTRAINT livros_categorias_pk
+        PRIMARY KEY (livro_id, categoria_id)
+);
+
+CREATE TABLE livros_autores (
+    livro_id integer NOT NULL,
+    autor_id integer NOT NULL,
+
+    CONSTRAINT livros_autores_livros_id_fk
+        FOREIGN KEY (livro_id)
+        REFERENCES livros (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT livros_autores_autores_id_fk
+        FOREIGN KEY (autor_id)
+        REFERENCES autores (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT livros_autores_unique
+        UNIQUE (livro_id, autor_id),
+
+    CONSTRAINT livros_autores_pk
+        PRIMARY KEY (livro_id, autor_id)
+);
+

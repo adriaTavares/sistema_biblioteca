@@ -23,7 +23,7 @@ CREATE TABLE configuracoes (
 
     tempo_expiracao_emprestimo integer NOT NULL DEFAULT 30,
     tempo_adicionado_renovacao_emprestimo integer NOT NULL DEFAULT 30,
-    maximo_renovacoes_por_emprestimo integer DEFAULT 5
+    maximo_renovacoes_por_emprestimo integer DEFAULT 5,
     valor_multa_por_dia numeric(10, 2) NOT NULL DEFAULT 1.00,
 
 

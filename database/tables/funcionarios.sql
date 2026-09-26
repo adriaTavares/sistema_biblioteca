@@ -40,17 +40,10 @@ CREATE TABLE funcionarios (
     CONSTRAINT funcionarios_cpf_unique
         UNIQUE (cpf),
 
-    CONSTRAINT funcionarios_contato_check
-        CHECK (
-            NULLIF(btrim(email), '') IS NOT NULL
-            OR
-            NULLIF(btrim(telefone), '') IS NOT NULL
-        ),
-
     CONSTRAINT cargos_funcionarios_id_fk
         FOREIGN KEY (cargo_id)
         REFERENCES cargos_funcionarios (id)
-        ON DELETE RESTRICT
+        ON DELETE SET DEFAULT
         ON UPDATE CASCADE,
 
     CONSTRAINT funcionario_cpf_check 

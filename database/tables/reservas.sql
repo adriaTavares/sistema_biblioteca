@@ -57,6 +57,21 @@ CREATE TABLE reservas (
         ON DELETE RESTRICT
         ON UPDATE CASCADE,
     
+    CONSTRAINT reservas_consistencia_funcionario_data_criacao
+        CHECK (
+            (
+                data_criacao IS NOT NULL 
+                AND
+                funcionario_criacao_id IS NOT NULL
+            )
+            OR 
+            (
+                data_criacao IS NULL
+                AND 
+                funcionario_criacao_id IS NULL
+            )
+        ),
+
     CONSTRAINT reservas_consistencia_funcionario_data_finalizacao
         CHECK (
             (
@@ -87,6 +102,8 @@ CREATE TABLE reservas (
             )
         )
 );
+
+CREATE INDEX reservas
 
 CREATE FUNCTION criar_reserva (
     livro_id_c integer,
@@ -147,7 +164,7 @@ AS $$
     END;
 $$;
 
-
+-- carregar reservas e atualizar
 
 BEGIN;
     WITH reservas_ativas AS (
@@ -211,7 +228,7 @@ CREATE OR REPLACE FUNCTION cancelar_reserva(
     reserva_id_p bigint,
     funcionario_id_p integer
 )
-RETURNS void
+RETURNS reservas
 LANGUAGE plpgsql
 AS $$
     DECLARE
@@ -273,3 +290,13 @@ AS $$
 $$;
 
 
+CREATE FUNCTION finalizar_reserva(
+    reserva_id_p bigint,
+    funcionario_id_p integer
+)
+LANGUAGE plpgsql
+RETURNS reservas
+AS $$
+    DECLARE
+        reservas_parcial reservas;
+    BEGIN

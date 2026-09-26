@@ -92,6 +92,7 @@ CREATE TABLE livros_autores (
         PRIMARY KEY (livro_id, autor_id)
 );
 
+
 CREATE TYPE status_exemplar_enum AS ENUM (
     'disponivel',
     'processando',

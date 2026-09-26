@@ -6,20 +6,15 @@ CREATE TYPE status_emprestimo_enum AS ENUM (
 
 CREATE TABLE emprestimos (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-
     cliente_id integer NOT NULL,
     exemplar_id integer NOT NULL,
-
     funcionario_criacao_id integer NOT NULL,
     funcionario_fim_id integer,
-
-    dataCriacao timestamptz NOT NULL DEFAULT now(),
-    dataPrevistaDevolucao date NOT NULL,
-    dataFim timestamptz,
-
-    quantidadeRenovacoes integer NOT NULL DEFAULT 0,
+    data_criacao timestamptz NOT NULL DEFAULT now(),
+    data_prevista_devolucao date NOT NULL,
+    data_fim timestamptz,
+    quantidade_renovacoes integer NOT NULL DEFAULT 0,
     status status_emprestimo_enum NOT NULL DEFAULT 'ativo',
-
     periodo tstzrange GENERATED ALWAYS AS (
         tstzrange(
             data_criacao,
@@ -57,20 +52,20 @@ CREATE TABLE emprestimos (
 
     CONSTRAINT emprestimos_data_prevista_check
         CHECK (
-            dataPrevistaDevolucao >= dataCriacao::date
+            data_prevista_devolucao >= data_criacao::date
         ),
 
     CONSTRAINT emprestimos_data_fim_check
         CHECK (
-            dataFim IS NULL
-            OR dataFim >= dataCriacao
+            data_fim IS NULL
+            OR data_fim >= data_criacao
         ),
 
     CONSTRAINT emprestimos_status_data_fim_check
         CHECK (
             (
                 status = 'ativo'
-                AND dataFim IS NULL
+                AND data_fim IS NULL
                 AND funcionario_fim_id IS NULL
             )
             OR
@@ -88,3 +83,11 @@ CREATE TABLE emprestimos (
         )
         DEFERRABLE INITIALLY IMMEDIATE
 );
+
+
+CREATE FUNCTION criar_emprestimo(
+    cliente_id_p BIGINT,
+    exemplar_id_p BIGINT,
+    funcionario_id_p BIGINT,
+    quantidade_dias INTEGER := NULL
+)
