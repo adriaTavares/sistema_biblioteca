@@ -12,6 +12,10 @@ CREATE TABLE configuracoes (
     limitar_numero_emprestimos_cliente integer,
     limitar_numero_emprestimos_mesmo_livro integer,
 
+
+    idade_minima_funcionarios integer default 0,
+    idade_minima_clientes integer default 0,
+
     CONSTRAINT configuracoes_tempo_expiracao_reserva_processando_check
         CHECK (tempo_expiracao_reserva_processando > 0),
 
@@ -34,5 +38,13 @@ CREATE TABLE configuracoes (
         CHECK (limitar_numero_emprestimos_cliente >= 0),
 
     CONSTRAINT configuracoes_limitar_numero_emprestimos_mesmo_livro_check
-        CHECK (limitar_numero_emprestimos_mesmo_livro >= 0)
+        CHECK (limitar_numero_emprestimos_mesmo_livro >= 0),
+    
+    CONSTRAINT configuracoes_idade_minima_funcionarios_check
+        CHECK(idade_minima_funcionarios >= 0),
+
+    CONSTRAINT configuracoes_idade_minima_clientes_check
+        CHECK(idade_minima_clientes >= 0)
+
+
 );

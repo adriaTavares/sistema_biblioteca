@@ -13,7 +13,6 @@ DECLARE
     configuracoes_v configuracoes;
 BEGIN
 
-    -- Exemplar
     SELECT id, status, livro_id, codigo
     INTO exemplar_v
     FROM exemplares
@@ -21,7 +20,6 @@ BEGIN
     FOR UPDATE;
 
 
-    -- Livro
     SELECT id, ativo, titulo
     INTO livro_v
     FROM livros
@@ -29,7 +27,6 @@ BEGIN
     FOR UPDATE;
 
 
-    -- Cliente
     SELECT id, ativo, nome
     INTO clientes_v
     FROM clientes
@@ -37,7 +34,6 @@ BEGIN
     FOR UPDATE;
 
 
-    -- Funcionário
     SELECT id, ativo, nome
     INTO funcionario_v
     FROM funcionarios
@@ -45,7 +41,6 @@ BEGIN
     FOR UPDATE;
 
 
-    -- Configurações
     SELECT
         tempo_expiracao_emprestimo,
         tempo_adicionado_renovacao_emprestimo,
@@ -62,27 +57,31 @@ BEGIN
 
         -- Exemplar
 
-        IF exemplar_v.id IS NULL THEN
-
+        IF 
+            exemplar_v.id IS NULL 
+        THEN
             RAISE EXCEPTION
                 'Exemplar % não existe.',
                 exemplar_id_p;
 
-        ELSIF exemplar_v.status != 'disponível' THEN
-
+        ELSIF 
+            exemplar_v.status NOT IN ('disponível', 'processando')
+        THEN
             RAISE EXCEPTION
                 'Exemplar % está atualmente %.',
                 exemplar_v.codigo,
                 exemplar_v.status;
 
-        ELSIF livro_v.id IS NULL THEN
-
+        ELSIF 
+            livro_v.id IS NULL 
+        THEN
             RAISE EXCEPTION
                 'O livro associado ao exemplar % não existe.',
                 exemplar_v.codigo;
 
-        ELSIF NOT livro_v.ativo THEN
-
+        ELSIF 
+            NOT livro_v.ativo 
+        THEN
             RAISE EXCEPTION
                 'O livro "%" está desativado no sistema.',
                 livro_v.titulo;
@@ -92,14 +91,16 @@ BEGIN
 
         -- Cliente
 
-        IF clientes_v.id IS NULL THEN
-
+        IF 
+            clientes_v.id IS NULL 
+        THEN
             RAISE EXCEPTION
                 'Cliente % não existe.',
                 cliente_id_p;
 
-        ELSIF NOT clientes_v.ativo THEN
-
+        ELSIF 
+            NOT clientes_v.ativo 
+        THEN
             RAISE EXCEPTION
                 'Cliente % está desativado no sistema.',
                 clientes_v.nome;
@@ -109,13 +110,16 @@ BEGIN
 
         -- Funcionário
 
-        IF funcionario_v.id IS NULL THEN
-
+        IF 
+            funcionario_v.id IS NULL 
+        THEN
             RAISE EXCEPTION
                 'Funcionário % não existe.',
                 funcionario_id_p;
 
-        ELSIF NOT funcionario_v.ativo THEN
+        ELSIF 
+            NOT funcionario_v.ativo 
+        THEN
 
             RAISE EXCEPTION
                 'Funcionário % está desativado.',
@@ -126,10 +130,11 @@ BEGIN
 
         -- Limite de empréstimos do cliente
 
-        IF configuracoes_v.maximo_emprestimos_por_cliente IS NOT NULL
-           AND configuracoes_v.maximo_emprestimos_por_cliente > 0
+        IF 
+            configuracoes_v.maximo_emprestimos_por_cliente IS NOT NULL
+            AND 
+            configuracoes_v.maximo_emprestimos_por_cliente > 0
         THEN
-
             IF (
                 SELECT COUNT(*)
                 FROM emprestimos
@@ -150,8 +155,10 @@ BEGIN
 
         -- Limite de empréstimos do mesmo livro
 
-        IF configuracoes_v.maximo_emprestimos_mesmo_livro IS NOT NULL
-           AND configuracoes_v.maximo_emprestimos_mesmo_livro > 0
+        IF 
+            configuracoes_v.maximo_emprestimos_mesmo_livro IS NOT NULL
+            AND 
+            configuracoes_v.maximo_emprestimos_mesmo_livro > 0
         THEN
 
             IF (
@@ -177,7 +184,6 @@ BEGIN
     END;
 
 
-    -- Criação do empréstimo
 
     INSERT INTO emprestimos (
         cliente_id,
@@ -194,7 +200,6 @@ BEGIN
     );
 
 
-    -- Atualização do exemplar
 
     UPDATE exemplares
     SET status = 'emprestado'

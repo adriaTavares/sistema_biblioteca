@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE finalizacao_emprestimo_procedure(
+CREATE OR REPLACE PROCEDURE cancelamento_emprestimo_procedure(
     emprestimo_id_p BIGINT,
     funcionario_id_p BIGINT
 )
@@ -37,7 +37,7 @@ BEGIN
         ELSIF emprestimo_v.status != 'ativo' THEN
 
             RAISE EXCEPTION
-                'Empréstimo % está % e não pode ser finalizado.',
+                'Empréstimo % está % e não pode ser cancelado.',
                 emprestimo_v.id,
                 emprestimo_v.status;
 
@@ -61,12 +61,12 @@ BEGIN
     END;
 
 
-    -- Finalização do empréstimo
+    -- Cancelamento do empréstimo
     UPDATE emprestimos
     SET
-        status = 'finalizado',
-        funcionario_finalizacao_id = funcionario_id_p,
-        data_finalizacao = now()
+        status = 'cancelado',
+        funcionario_cancelamento_id = funcionario_id_p,
+        data_cancelamento = now()
     WHERE id = emprestimo_id_p;
 
 
@@ -77,3 +77,4 @@ BEGIN
 
 END;
 $$;
+

@@ -8,7 +8,7 @@ CREATE TYPE status_emprestimo_enum AS ENUM (
 
 
 CREATE TABLE emprestimos (
-    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     cliente_id integer NOT NULL,
     exemplar_id integer NOT NULL,
 
